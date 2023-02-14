@@ -22,6 +22,9 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Generate Docker image tag with short sha
+        id: dockertag
+        run: echo "img_tag=ghcr.io/${{ github.repository }}:$(git rev-parse --short HEAD)" >> ${GITHUB_OUTPUT}
       - name: Build and push
         id: build-push
         uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671 # ratchet:docker/build-push-action@v4
@@ -31,6 +34,6 @@ jobs:
           platforms: linux/amd64,linux/arm64
           pull: true
           push: false
-          tags: ghcr.io/${{ github.repository }}:$(git rev-parse --short HEAD)
+          tags: ${{ steps.dockertag.outputs.img_tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
