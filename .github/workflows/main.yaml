@@ -8,6 +8,8 @@ jobs:
     runs-on: ubuntu-20.04
     permissions:
       contents: read
+      packages: write
+      id-token: write
     steps:
       - name: Checkout latest code
         uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # ratchet:actions/checkout@v3
@@ -33,7 +35,15 @@ jobs:
           file: Dockerfile
           platforms: linux/amd64,linux/arm64
           pull: true
-          push: false
+          push: true
           tags: ${{ steps.dockertag.outputs.img_tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      - name: Install cosign
+        uses: sigstore/cosign-installer@4079ad3567a89f68395480299c77e40170430341 # ratchet:sigstore/cosign-installer@main
+        with:
+          cosign-release: 'v1.13.1'
+      - name: Sign the container image
+        run: cosign sign ghcr.io/${{ github.repository }}@${{ steps.build-push.outputs.digest }}
+        env:
+          COSIGN_EXPERIMENTAL: "true"
