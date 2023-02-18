@@ -1,6 +1,12 @@
 # cosign cheat sheet
 
-## Using local key material
+## Using local keys
+
+Local keys are the ones that you create and store on your own infrastructure. 
+
+Make sure to properly protect your private keys.
+
+The easiest way to make your public keys easily accessible to everyone that needs them is to host them on a HTTP URL. 
 
 ### Generate a keypair
 ```bash
