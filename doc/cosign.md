@@ -57,3 +57,30 @@ Uploading SBOM file for [index.docker.io/dockeruser/my-container:tag] to [index.
 ```bash
 ❯ cosign verify --key cosign.pub dockeruser/my-container:sha256-xxxx.sbom
 ```
+
+## Using remote keys
+
+Remote keys are stored in some type of key vault, typically the ones that are offered by the major cloud vendors. Some of them offer additional security by being backed by dedicated [hardware security modules](https://en.wikipedia.org/wiki/Hardware_security_module).
+
+### Hashicorp Vault
+
+```bash
+# Generate key pair
+❯ cosign generate-key-pair --kms hashivault://$keyname
+Public key written to cosign.pub
+
+# Sign blob
+❯ cosign sign-blob --key hashivault://$keyname --output-signature myfile.sig myfile
+Using payload from: myfile
+Signature wrote in the file myfile.sig
+
+# Verify against Vault
+❯ cosign verify-blob --key hashivault://$keyname --signature myfile.sig myfile
+Verified OK
+
+# Verify using the public key file from previous step
+cosign verify-blob --key cosign.pub --signature myfile.sig myfile
+❯ Verified OK
+```
+
+The environment variables `VAULT_ADDR` and `VAULT_TOKEN` must be set
