@@ -85,17 +85,102 @@ cosign verify-blob --key cosign.pub --signature myfile.sig myfile
 
 The environment variables `VAULT_ADDR` and `VAULT_TOKEN` must be set
 
-### Signere med Ymse "Cloud KMS"
+### Sign using a "Cloud KMS"
 
 (Se detaljer i [cosign-dokumentasjonen](https://docs.sigstore.dev/cosign/kms_support/))
 
 ```bash
 # AWS
-cosign sign-blob --key awskms://$ENDPOINT/$KEYID --output-signature myfile.sig myfile
+❯ cosign sign-blob --key awskms://$ENDPOINT/$KEYID --output-signature myfile.sig myfile
 
 # GCP
-cosign sign-blob --key gcpkms://projects/$PROJECT/locations/$LOCATION/keyRings/$KEYRING/cryptoKeys/$KEY/versions/$KEY_VERSION --output-signature myfile.sig myfile
+❯ cosign sign-blob --key gcpkms://projects/$PROJECT/locations/$LOCATION/keyRings/$KEYRING/cryptoKeys/$KEY/versions/$KEY_VERSION --output-signature myfile.sig myfile
 
 # Azure
-cosign sign-blob --key azurekms://[VAULT_NAME][VAULT_URI]/[KEY] --output-signature myfile.sig myfile
+❯ cosign sign-blob --key azurekms://[VAULT_NAME][VAULT_URI]/[KEY] --output-signature myfile.sig myfile
+```
+
+### "Keyless" signing of images with Sigstore (experimental)
+
+Uses [OIDC](https://openid.net/connect/) to establish identity, generates ephemeral keys and certificates using [Fulcio](https://github.com/sigstore/fulcio), signs the payload and uploads the signature to the [Rekor](https://github.com/sigstore/rekor) transparency log.The Rekor entry is then used to perform validation in the future.  
+
+The OIDC flow must be completed in a web browser. In automated environments (such as CI/CD pipelines) where the end user is not part of the flow Cosign supports using identity tokens from specific issuers. The `audience` claim in these tokens must contain `sigstore`. The issuers currently supported are Google Compute Engine, GitHub Actions and SPIFFE. 
+
+> **Note**
+> 
+> Some metadata (including your email address) will be uploaded to the public transparency log, do not use this feature if you don't want to share this information with the world. 
+
+#### Signing an arbitraty blob:
+
+```bash
+❯ COSIGN_EXPERIMENTAL=1 cosign sign-blob --output-signature myfile.sig --output-certificate mycert.crt myfile
+Using payload from: myfile
+Generating ephemeral keys...
+...
+tlog entry created with index: 1234567
+Signature wrote in the file myfile.sig
+Certificate wrote in the file mycert.crt
+```
+
+
+#### GitHub Workflow for signing a Docker image:
+
+```yaml
+name: Build and push to GitHub OCI registry
+on:
+  push:
+    branches:
+      - main
+      - solution
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    steps:
+      - name: Checkout latest code
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # ratchet:actions/checkout@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@e81a89b1732b9c48d79cd809d8d81d79c4647a18 # ratchet:docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@f03ac48505955848960e80bbb68046aa35c7b9e7 # ratchet:docker/setup-buildx-action@v2
+      - name: Login to container registry
+        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # ratchet:docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Generate Docker image tag with short sha
+        id: dockertag
+        run: echo "img_tag=ghcr.io/${{ github.repository }}:$(git rev-parse --short HEAD)" >> ${GITHUB_OUTPUT}
+      - name: Build and push
+        id: build-push
+        uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671 # ratchet:docker/build-push-action@v4
+        with:
+          context: .
+          file: Dockerfile
+          platforms: linux/amd64,linux/arm64
+          pull: true
+          push: true
+          tags: ${{ steps.dockertag.outputs.img_tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Install cosign
+        uses: sigstore/cosign-installer@4079ad3567a89f68395480299c77e40170430341 # ratchet:sigstore/cosign-installer@main
+        with:
+          cosign-release: 'v1.13.1'
+      - name: Sign the container image
+        run: cosign sign ghcr.io/${{ github.repository }}@${{ steps.build-push.outputs.digest }}
+        env:
+          COSIGN_EXPERIMENTAL: "true"
+```
+
+#### Verifying an image:
+```bash
+❯ COSIGN_EXPERIMENTAL=true cosign verify ghcr.io/myuser/myimage:tag
+...
+<json with metadata>
 ```
