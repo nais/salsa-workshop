@@ -84,3 +84,18 @@ cosign verify-blob --key cosign.pub --signature myfile.sig myfile
 ```
 
 The environment variables `VAULT_ADDR` and `VAULT_TOKEN` must be set
+
+### Signere med Ymse "Cloud KMS"
+
+(Se detaljer i [cosign-dokumentasjonen](https://docs.sigstore.dev/cosign/kms_support/))
+
+```bash
+# AWS
+cosign sign-blob --key awskms://$ENDPOINT/$KEYID --output-signature myfile.sig myfile
+
+# GCP
+cosign sign-blob --key gcpkms://projects/$PROJECT/locations/$LOCATION/keyRings/$KEYRING/cryptoKeys/$KEY/versions/$KEY_VERSION --output-signature myfile.sig myfile
+
+# Azure
+cosign sign-blob --key azurekms://[VAULT_NAME][VAULT_URI]/[KEY] --output-signature myfile.sig myfile
+```
