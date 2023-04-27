@@ -54,7 +54,6 @@ jobs:
           format: 'spdx-json'
           output: 'sbom.spdx.json'
           image-ref: ghcr.io/${{ github.repository }}@${{ steps.build-push.outputs.digest }}
-          github-pat: ${{ secrets.GITHUB_TOKEN }}
       - name: Attest image
         run: cosign attest --yes --type spdxjson --predicate sbom.spdx.json ghcr.io/${{ github.repository }}@${{ steps.build-push.outputs.digest }}
         
