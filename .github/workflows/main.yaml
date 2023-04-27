@@ -51,8 +51,9 @@ jobs:
         uses: aquasecurity/trivy-action@e5f43133f6e8736992c9f3c1b3296e24b37e17f2 # ratchet:aquasecurity/trivy-action@master
         with:
           scan-type: 'image'
-          format: 'cyclonedx'
-          output: 'cyclone.sbom.json'
+          format: 'spdx-json'
+          output: 'sbom.spdx.json'
           image-ref: ghcr.io/${{ github.repository }}@${{ steps.build-push.outputs.digest }}
       - name: Attest image
-        run: cosign attest --yes --predicate cyclone.sbom.json --type cyclonedx ghcr.io/${{ github.repository }}@${{ steps.build-push.outputs.digest }}
+        run: cosign attest --yes --type spdxjson --predicate sbom.spdx.json ghcr.io/${{ github.repository }}@${{ steps.build-push.outputs.digest }}
+        
