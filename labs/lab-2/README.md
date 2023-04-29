@@ -72,8 +72,19 @@ Finally we are ready to attest the image signature using the SBOM:
         run: cosign attest --yes --predicate cyclone.sbom.json --type cyclonedx ghcr.io/${{ github.repository }}@${{ steps.build-push.outputs.digest }}
 ```
 
-Commit and push the changes to the repository and the workflow will start running. Once the workflow has finished running you can verify the signature by running the following command:
+Commit and push the changes to the repository and the workflow will start running. Once the workflow has finished running you can copy the verify the signature by running the following command:
 
 ```bash
-cosign verify ghcr.io/<your-user>/salsa-workshop:
+cosign verify-attestation \
+  --type cyclonedx \
+  --certificate-identity "https://github.com/noeannet/tokendings/.github/workflows/master.yml@refs/heads/master" \
+  --certificate-oidc-issuer "https://token.actions.githubusercontent.com" ghcr.io/nais/tokendings@sha256:43201a7b30a38a4790d541323a3d53720c41316b187c2f0472af2bca4cbd221c
 ```
+
+## Conclusion
+
+In this lab we have signed and verified a container using sigstore and GitHub Actions. We have also added an SBOM to the container and used it to attest the signature.
+
+## Next
+
+Proceed to [Lab 3](../lab-3/README.md).

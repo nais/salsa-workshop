@@ -54,4 +54,4 @@ In this lab we have signed and verified a container locally using cosign. In the
 
 ## Next
 
-Proceed to [Lab 2](../lab-2/README.md).
+Proceed to [Lab 2](../lab-2/README.md) >

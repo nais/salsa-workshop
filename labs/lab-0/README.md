@@ -66,6 +66,6 @@ Fork the workshop repository to your own GitHub account by clicking the "Fork" b
 
 You have now set up a local environment to run the workshop.
 
-## Next steps
+## Next
 
-[Lab 1: Introduction to SLSA](../lab-1/README.md) >
+Proceed to [Lab 1](../lab-1/README.md) >
