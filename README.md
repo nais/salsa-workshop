@@ -35,10 +35,14 @@ In this workshop we will make a practical approach to securing your container ap
 
 ## Overview
 
-The workshop is divided into 3 parts:
+The workshop is divided into 4 labs:
 
-1. Introduction to SLSA
-2. Setting up local environment
-3. Signing containers
-4. Verifying signed containers
-5. Policies at scale
+0. [Setting up local environment](labs/lab-0/README.md)
+1. [Signing containers locally](labs/lab-1/README.md)
+2. [Signing containers in a GitHub workflow](labs/lab-2/README.md)
+3. [Verifying signed containers in a Kubernetes cluster](labs/lab-3/README.md)
+4. [Working with policies at scale](labs/lab-4/README.md)
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
