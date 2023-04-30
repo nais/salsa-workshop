@@ -87,4 +87,4 @@ In this lab we have signed and verified a container using sigstore and GitHub Ac
 
 ## Next
 
-Proceed to [Lab 3](../lab-3/README.md).
+Proceed to [Lab 3](../lab-3/README.md) >
