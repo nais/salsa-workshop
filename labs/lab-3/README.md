@@ -54,44 +54,26 @@ metadata:
       when produced through GitHub Actions. It requires configuration based upon
       your own values.
 spec:
-  validationFailureAction: audit
+  validationFailureAction: Enforce
   webhookTimeoutSeconds: 30
   rules:
     - name: check-slsa-keyless
       match:
         any:
-        - resources:
-            kinds:
-              - Pod
+          - resources:
+              kinds:
+                - Pod
       verifyImages:
-      - imageReferences:
-        - "myreg.org/path/repo:*"
-        attestations:
-        - predicateType: https://slsa.dev/provenance/v0.2
+        - imageReferences:
+            - "https://github.com/<user>/salsa-workshop/*"
           attestors:
-          - count: 1
-            entries:
-            - keyless:
-                subject: "https://github.com/slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@refs/tags/v*"
-                issuer: "https://token.actions.githubusercontent.com"
-                rekor:
-                  url: https://rekor.sigstore.dev
-          conditions:
-          - all:
-            # This expression uses a regex pattern to ensure the builder.id in the attestation is equal to the official
-            # SLSA provenance generator workflow and uses a tagged release in semver format. If using a specific SLSA
-            # provenance generation workflow, you may need to adjust the first input as necessary.
-            - key: "{{ regex_match('^https://github.com/slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@refs/tags/v[0-9].[0-9].[0-9]$','{{ builder.id}}') }}"
-              operator: Equals
-              value: true
+            - entries:
+                - keyless:
+                    subject: "https://github.com/<user>/salsa-workshop/*"
+                    issuer: "https://token.actions.githubusercontent.com"
+                    rekor:
+                      url: https://rekor.sigstore.dev
 ```
-
-You need to replace the following values in the policy:
-
-- `myreg.org/path/repo:*` with the container image you want to verify
-- `"https://github.com/slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@refs/tags/v*"` with the workflow that generated the container image
-- `"https://token.actions.githubusercontent.com"` with the issuer of the signature
-- `"{{ regex_match('^https://github.com/slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@refs/tags/v[0-9].[0-9].[0-9]$','{{ builder.id}}') }}"` with the regex that matches the builder id
 
 Apply the policy:
 
