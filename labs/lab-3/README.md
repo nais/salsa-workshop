@@ -30,7 +30,7 @@ helm repo update
 helm install kyverno kyverno/kyverno --namespace kyverno --create-namespace
 ```
 
-Nw we will create a policy that verifies that all containers in a pod are signed.
+Now we will create a policy that verifies that all containers in a pod are signed.
 Create a file called `verify-signed-containers.yaml` with the following contents:
 
 ```yaml
@@ -65,7 +65,8 @@ spec:
                 - Pod
       verifyImages:
         - imageReferences:
-            - "https://github.com/<user>/salsa-workshop/*"
+            - "https://github.com/<user>/salsa-workshop:*"
+            - "https://github.com/nais/salsa-workshop:*"
           attestors:
             - entries:
                 - keyless:
@@ -81,25 +82,25 @@ Apply the policy:
 kubectl apply -f verify-signed-containers.yaml
 ```
 
-Now we will run a pod that uses a container image that is *not* signed.
+Deploy the signed image from the previous lab:
 
 ```bash
-kubectl run --image=ghcr.io/<user>/salsa-workshop:unsigned salsa-workshop--restart=Never --image-pull-policy=Always
+kubectl run --image=ghcr.io/<user>/salsa-workshop@<digest> salsa-workshop --restart=Never --image-pull-policy=Always
 ```
 
-You will see that the pod is not running:
+Check that the image was admitted into the cluster:
 
 ```bash
 kubectl get pods
 ```
 
-Now we will run a pod that uses a container image that is signed.
+Now we will attempt run a pod that uses a container image that is *not* signed.
 
 ```bash
-kubectl run --image=ghcr.io/<user>/salsa-workshop:main salsa-workshop--restart=Never --image-pull-policy=Always
+kubectl run --image=ghcr.io/nais/salsa-workshop:unsigned salsa-workshop --restart=Never --image-pull-policy=Always
 ```
 
-Check that the pod is running:
+You will see that the pod is not running because the image was rejected by Kyverno:
 
 ```bash
 kubectl get pods

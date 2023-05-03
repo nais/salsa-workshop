@@ -7,7 +7,7 @@ import (
 
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello, %s!", r.URL.Path[1:])
+		fmt.Fprintf(w, "Hello at path %s", r.URL.Path[1:])
 	})
 
 	http.HandleFunc("/liveness", func(w http.ResponseWriter, r *http.Request) {

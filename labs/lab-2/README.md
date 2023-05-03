@@ -1,8 +1,12 @@
-# Lab 2: Sign and verify containers using sigstore and GitHub Actions
+# Lab 2: Sign and verify containers using Sigstore and GitHub Actions
 
 ## Goal
 
 In this lab we will sign and verify containers using [sigstore](https://sigstore.dev/) and GitHub Actions. The goal is to get familiar with the tooling and the process of signing and verifying containers at scale.
+
+When you sign and/or attest an image cosign will upload the artifacts to the OCI registry alongside your image.
+
+If you get stuck, ask for help or take a peek at the Git branch named "solution".
 
 ### Sigstore
 
@@ -50,7 +54,7 @@ Once we have cosign we can sign the container using the following command:
         run: cosign sign --yes ghcr.io/${{ github.repository }}@${{ steps.build-push.outputs.digest }}
 ```
 
-Before we attest the image signature let's add an SBOM to our artifact as well:
+We also create a SBOM to document the contents of our app:
 
 > SBOM stands for Software Bill of Materials and is a list of components that are used to build a software artifact. SBOMs are used to track the components that are used in a software artifact and to identify vulnerabilities in those components.
 > In this example we will be using the aquasecurity/trivy-action to generate the SBOM. The action is currently in alpha and is being developed by Aqua Security.
@@ -65,7 +69,7 @@ Before we attest the image signature let's add an SBOM to our artifact as well:
           image-ref: ghcr.io/${{ github.repository }}@${{ steps.build-push.outputs.digest }}
 ```
 
-Finally we are ready to attest the image signature using the SBOM:
+Finally we sign the SBOM and attach it to our image:
 
 ```yaml
       - name: Attest image
@@ -73,7 +77,7 @@ Finally we are ready to attest the image signature using the SBOM:
 ```
 
 Commit and push the changes to the repository and the workflow will start running.
-Once the workflow has finished you can copy the image digest from the workflow log or the `packages` part of the GitHub UI.
+Once the workflow has finished you can copy the image digest from the workflow log or the `packages` part of the GitHub UI. You will need this digest in the next step as well as in the next lab.
 The signature can be verified by running the following command:
 
 ```bash
