@@ -84,25 +84,31 @@ Apply the policy:
 kubectl apply -f verify-signed-containers.yaml
 ```
 
-Deploy the signed image from the previous lab:
+First we will attempt run a pod that uses a container image that is *not* signed.
 
 ```bash
-kubectl run --image=ghcr.io/<user>/salsa-workshop@<digest> salsa-workshop --restart=Never --image-pull-policy=Always
+kubectl run --image=ghcr.io/nais/salsa-workshop:unsigned salsa-workshop-unsigned --restart=Never --image-pull-policy=Always
+```
+
+This should not work and you will get the following error from Kyverno:
+
+```bash
+Error from server: admission webhook "mutate.kyverno.svc-fail" denied the request:
+
+policy Pod/default/salsa-workshop-unsigned for resource violation:
+
+verify-slsa-provenance-keyless:
+  check-slsa-keyless: |
+    failed to verify image ghcr.io/nais/salsa-workshop:unsigned: .attestors[0].entries[0].keyless: no matching signatures:
+```
+
+Now we will deploy the signed image from the previous lab:
+
+```bash
+kubectl run --image=ghcr.io/<user>/salsa-workshop@<digest> salsa-workshop-signed --restart=Never --image-pull-policy=Always
 ```
 
 Check that the image was admitted into the cluster:
-
-```bash
-kubectl get pods
-```
-
-Now we will attempt run a pod that uses a container image that is *not* signed.
-
-```bash
-kubectl run --image=ghcr.io/nais/salsa-workshop:unsigned salsa-workshop --restart=Never --image-pull-policy=Always
-```
-
-You will see that the pod is not running because the image was rejected by Kyverno:
 
 ```bash
 kubectl get pods
