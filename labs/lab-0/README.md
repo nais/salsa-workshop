@@ -60,6 +60,31 @@ kubectl get nodes
 
 Fork the workshop repository to your own GitHub account by clicking the "Fork" button in the top right corner of the repository page.
 
+Go to your forked repository and enable GitHub Actions:
+
+```
+https://github.com/nais/<user>/actions
+```
+
+Clone the repository to your local machine:
+
+```bash
+git clone git@github.com:<user>/nais-workshop.git
+```
+
+### 8. Create a GitHub personal access token
+
+Create a [new GitHub personal access
+token](https://github.com/settings/tokens/new) with the following permissions:
+
+- `write:packages`
+
+Log in to GitHub Packages (ghcr.io) with your docker client:
+
+```bash
+echo "<token>" | docker login ghcr.io --username <user> --password-stdin
+```
+
 ## Conclusion
 
 You have now set up a local environment to run the workshop.
@@ -67,3 +92,4 @@ You have now set up a local environment to run the workshop.
 ## Next
 
 Proceed to [Lab 1](../lab-1/README.md) >
+
