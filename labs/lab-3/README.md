@@ -65,8 +65,10 @@ spec:
                 - Pod
       verifyImages:
         - imageReferences:
-            - "https://github.com/<user>/salsa-workshop:*"
-            - "https://github.com/nais/salsa-workshop:*"
+            - ghcr.io/<user>/salsa-workshop:*
+            - ghcr.io/<user>/salsa-workshop@*
+            - ghcr.io/nais/salsa-workshop:*
+            - ghcr.io/nais/salsa-workshop@*
           attestors:
             - entries:
                 - keyless:
