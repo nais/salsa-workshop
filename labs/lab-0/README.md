@@ -26,9 +26,7 @@ Follow the instructions for your operating system:
 
 Follow the instructions for your operating system:
 
-- [Mac](https://minikube.sigs.k8s.io/docs/start/macos/)
-- [Linux](https://minikube.sigs.k8s.io/docs/start/linux/)
-- [Windows](https://minikube.sigs.k8s.io/docs/start/windows/)
+- [All systems](https://minikube.sigs.k8s.io/docs/start/)
 
 ### 4. Install Helm
 
