@@ -15,10 +15,10 @@ When you sign an image cosign will upload the signature to the OCI registry alon
 
 ## Steps
 
-Make a funny name for your container:
+Make a random name for your container:
 
 ```bash
-export CONTAINER_NAME="ttl.sh/salsa-workshop-$(shuf -n1 /usr/share/dict/words):2h"
+export CONTAINER_NAME="ttl.sh/salsa-workshop-$(dd if=/dev/urandom bs=1 count=10 status=none | base64 | tr -dc 'a-z'):2h"
 echo "Your chosen container name is $CONTAINER_NAME"
 ```
 
