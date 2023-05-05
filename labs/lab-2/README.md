@@ -31,7 +31,7 @@ In the `Build and push` step we need to enable pushing the image to the registry
 
 ```yaml
       - name: Build and push
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671 # ratchet:docker/build-push-action@v4
         with:
           …
           push: true
@@ -42,7 +42,7 @@ Next we need to install cosign so that we have the cosign binary in our workflow
 
 ```yaml
       - name: Install cosign
-        uses: sigstore/cosign-installer@main
+        uses: sigstore/cosign-installer@204a51a57a74d190b284a0ce69b44bc37201f343 # ratchet:sigstore/cosign-installer@main
         with:
           cosign-release: 'v2.0.0'
 ```
@@ -61,7 +61,7 @@ We also create a SBOM to document the contents of our app:
 
 ```yaml
       - name: Create SBOM
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@e5f43133f6e8736992c9f3c1b3296e24b37e17f2 # ratchet:aquasecurity/trivy-action@master
         with:
           scan-type: 'image'
           format: 'cyclonedx'
