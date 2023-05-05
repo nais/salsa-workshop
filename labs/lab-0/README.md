@@ -60,6 +60,11 @@ kubectl get nodes
 
 Fork the workshop repository to your own GitHub account by clicking the "Fork" button in the top right corner of the repository page.
 
+> **Note**
+> Docker image names cannot contain uppercase letters. If your GitHub username contains uppercase letters 
+> this may cause problems in subsequent labs. If this is the case you must manually replace occurrences of 
+> `${{ github.repository }}` with an all-lowercase hardcoded version in your workflows. Ask for help if you get stuck!
+
 Go to your forked repository and enable GitHub Actions:
 
 ```
