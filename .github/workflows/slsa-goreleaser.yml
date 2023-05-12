@@ -43,9 +43,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - id: Install verifier
+      - name: Install verifier
         uses: slsa-framework/slsa-verifier/actions/installer@v2.3.0
-      - id: Verify
+      - name: Verify
         run: |
           slsa-verifier verify-artifact ${{ needs.build.outputs.go-binary-name }} \
           --provenance-path ${{ needs.build.outputs.go-provenance-name }} \
