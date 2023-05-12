@@ -49,6 +49,6 @@ jobs:
         run: |
           slsa-verifier verify-artifact ${{ needs.build.outputs.go-binary-name }} \
           --provenance-path ${{ needs.build.outputs.go-provenance-name }} \
-          --source-uri github.com/${{ github_repository }} \
+          --source-uri github.com/${{ github.repository }} \
 
 
