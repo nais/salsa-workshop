@@ -39,6 +39,7 @@ jobs:
       evaluated-envs: "COMMIT_DATE:${{needs.args.outputs.commit-date}}, COMMIT:${{needs.args.outputs.commit}}, VERSION:${{needs.args.outputs.version}}"
 
   upload:
+    runs-on: ubuntu-latest
     needs: build
     uses: actions/upload-artifact@v3
     with:
