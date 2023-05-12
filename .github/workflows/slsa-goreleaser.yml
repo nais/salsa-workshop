@@ -37,3 +37,18 @@ jobs:
       go-version: "1.20"
       # Optional: only needed if using ldflags.
       evaluated-envs: "COMMIT_DATE:${{needs.args.outputs.commit-date}}, COMMIT:${{needs.args.outputs.commit}}, VERSION:${{needs.args.outputs.version}}"
+
+    # Trusted verifier.
+  verify:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - id: Install verifier
+        uses: slsa-framework/slsa-verifier/actions/installer@v2.3.0
+      - id: Verify
+        run: |
+          slsa-verifier verify-artifact ${{ needs.build.outputs.go-binary-name }} \
+          --provenance-path ${{ needs.build.outputs.go-provenance-name }} \
+          --source-uri github.com/${{ github_repository }} \
+
+
