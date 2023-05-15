@@ -19,7 +19,7 @@ We will use
 the [Go Generator](https://github.com/slsa-framework/slsa-github-generator/blob/main/internal/builders/go/README.md) in
 this workshop, but you can use any builder you want.
 
-Define a configuration file called `.slsa-goreleaser.yml` in the root of your project.
+For Golang project, define a configuration file called `.slsa-goreleaser.yml` in the root of your project.
 
 ```yaml
 # Version for this file.
@@ -51,21 +51,27 @@ goarch: amd64
 binary: binary-{{ .Os }}-{{ .Arch }}
 ```
 
-First set up the permissions for the Action:
+First set up the permissions, name and on trigger for the workflow.
 
 ```yaml
+name: SLSA go releaser
+on: [ push ]
 permissions:
   read-all: true
 ```
 
+Set up the permissions for the workflow, the workflow needs to be able to read the workflow path, write the id-token
+
 ```yaml
+jobs:
+  build:
     permissions:
       id-token: write # To sign the provenance.
       contents: write # To upload assets to release.
       actions: read # To read the workflow path.
 ```
 
-Set up the SLSA generator
+Set up the [SLSA Generator](https://github.com/slsa-framework/slsa-github-generator). Go version is required.
 
 ```yaml
     uses: slsa-framework/slsa-github-generator/.github/workflows/builder_go_slsa3.yml@v1.6.0
@@ -102,6 +108,9 @@ In addition to that, you could also use the Rekor Search UI:
 Add a verify job to your workflow
 
 ```yaml
+  verify:
+    runs-on: ubuntu-latest
+    needs: build
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
         with:
