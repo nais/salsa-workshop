@@ -57,7 +57,7 @@ jobs:
 
       - name: Verify
         run: |
-          slsa-verifier verify-artifact --provenance-path ${{ needs.build.outputs.go-provenance-name }} \
+          slsa-verifier verify-artifact --provenance-path ${{ needs.build.outputs.go-provenance-name }}/${{ needs.build.outputs.go-provenance-name }} \
           --source-uri github.com/${{ github.repository }} \
           ${{ needs.build.outputs.go-binary-name }}/${{ needs.build.outputs.go-binary-name }}
 
