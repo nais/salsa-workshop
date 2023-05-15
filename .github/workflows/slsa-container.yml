@@ -1,3 +1,8 @@
+name: Build and push to ttl.sh OCI registry
+on:
+  push:
+    branches:
+      - main
 env:
   IMAGE_REGISTRY: ttl.sh
   IMAGE_NAME: ${{ github.repository }}
