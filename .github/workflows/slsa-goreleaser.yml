@@ -2,6 +2,27 @@ name: SLSA go releaser
 on: [push]
 permissions: read-all
 jobs:
+  # Generate ldflags dynamically.
+  # Optional: only needed for ldflags.
+  args:
+    runs-on: ubuntu-latest
+    outputs:
+      commit-date: ${{ steps.ldflags.outputs.commit-date }}
+      commit: ${{ steps.ldflags.outputs.commit }}
+      version: ${{ steps.ldflags.outputs.version }}
+      tree-state: ${{ steps.ldflags.outputs.tree-state }}
+    steps:
+      - id: checkout
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # ratchet:actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - id: ldflags
+        run: |
+          echo "commit-date=$(git log --date=iso8601-strict -1 --pretty=%ct)" >> "$GITHUB_OUTPUT"
+          echo "commit=$GITHUB_SHA" >> "$GITHUB_OUTPUT"
+          echo "version=$(git describe --tags --always --dirty | cut -c2-)" >> "$GITHUB_OUTPUT"
+          echo "tree-state=$(if git diff --quiet; then echo "clean"; else echo "dirty"; fi)" >> "$GITHUB_OUTPUT"
+
   # Trusted builder.
   build:
     permissions:
@@ -11,7 +32,10 @@ jobs:
     uses: slsa-framework/slsa-github-generator/.github/workflows/builder_go_slsa3.yml@0779f7bec68e2bf54a7b0a32bf4763f25ab29702 # ratchet:slsa-framework/slsa-github-generator/.github/workflows/builder_go_slsa3.yml@v1.6.0
     with:
       go-version: "1.20"
-      # Trusted verifier.
+      # Optional: only needed if using ldflags.
+      evaluated-envs: "COMMIT_DATE:${{needs.args.outputs.commit-date}}, COMMIT:${{needs.args.outputs.commit}}, VERSION:${{needs.args.outputs.version}}"
+
+    # Trusted verifier.
   verify:
     runs-on: ubuntu-latest
     needs: build
