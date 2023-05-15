@@ -42,6 +42,7 @@ The workshop is divided into 4 labs:
 2. [Signing containers in a GitHub workflow](labs/lab-2/README.md)
 3. [Verifying signed containers in a Kubernetes cluster](labs/lab-3/README.md)
 4. [Working with policies at scale](labs/lab-4/README.md)
+5. [Spice up supply-chain security CI with SLSA](labs/lab-5-extra/README.md)
 
 ## License
 

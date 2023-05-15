@@ -1,64 +1,31 @@
 name: SLSA go releaser
-on: [ push ]
-
+on: [push]
 permissions: read-all
-
 jobs:
-  # Generate ldflags dynamically.
-  # Optional: only needed for ldflags.
-  args:
-    runs-on: ubuntu-latest
-    outputs:
-      commit-date: ${{ steps.ldflags.outputs.commit-date }}
-      commit: ${{ steps.ldflags.outputs.commit }}
-      version: ${{ steps.ldflags.outputs.version }}
-      tree-state: ${{ steps.ldflags.outputs.tree-state }}
-    steps:
-      - id: checkout
-        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # ratchet:actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - id: ldflags
-        run: |
-          echo "commit-date=$(git log --date=iso8601-strict -1 --pretty=%ct)" >> "$GITHUB_OUTPUT"
-          echo "commit=$GITHUB_SHA" >> "$GITHUB_OUTPUT"
-          echo "version=$(git describe --tags --always --dirty | cut -c2-)" >> "$GITHUB_OUTPUT"
-          echo "tree-state=$(if git diff --quiet; then echo "clean"; else echo "dirty"; fi)" >> "$GITHUB_OUTPUT"
-
   # Trusted builder.
   build:
     permissions:
       id-token: write # To sign the provenance.
       contents: write # To upload assets to release.
       actions: read # To read the workflow path.
-    needs: args
-    uses: slsa-framework/slsa-github-generator/.github/workflows/builder_go_slsa3.yml@v1.6.0
+    uses: slsa-framework/slsa-github-generator/.github/workflows/builder_go_slsa3.yml@0779f7bec68e2bf54a7b0a32bf4763f25ab29702 # ratchet:slsa-framework/slsa-github-generator/.github/workflows/builder_go_slsa3.yml@v1.6.0
     with:
       go-version: "1.20"
-      # Optional: only needed if using ldflags.
-      evaluated-envs: "COMMIT_DATE:${{needs.args.outputs.commit-date}}, COMMIT:${{needs.args.outputs.commit}}, VERSION:${{needs.args.outputs.version}}"
-
-    # Trusted verifier.
+      # Trusted verifier.
   verify:
     runs-on: ubuntu-latest
     needs: build
     steps:
       - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # ratchet:actions/checkout@v3
-      - uses: actions/download-artifact@v3
-
-      - name: Display structure of downloaded files
-        run: ls -R
-
+      - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # ratchet:actions/download-artifact@v3
+        with:
+          name: ${{ needs.build.outputs.go-provenance-name }}
+      - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # ratchet:actions/download-artifact@v3
+        with:
+          name: ${{ needs.build.outputs.go-binary-name }}
       - name: Install verifier
-        uses: slsa-framework/slsa-verifier/actions/installer@v2.3.0
-
-      - name: Print folder
-        run: cd ${{ needs.build.outputs.go-binary-name }} && ls -R
-
+        uses: slsa-framework/slsa-verifier/actions/installer@c9abffe4d2ab2ffa0b2ea9b2582b84164f390adc # ratchet:slsa-framework/slsa-verifier/actions/installer@v2.3.0
       - name: Verify
         run: |
-          slsa-verifier verify-artifact --provenance-path ${{ needs.build.outputs.go-provenance-name }}/${{ needs.build.outputs.go-provenance-name }} \
-          --source-uri github.com/${{ github.repository }} \
-          ${{ needs.build.outputs.go-binary-name }}/${{ needs.build.outputs.go-binary-name }}
-
-
+          slsa-verifier verify-artifact --provenance-path ${{ needs.build.outputs.go-provenance-name }} \
+          --source-uri github.com/${{ github.repository }} ${{ needs.build.outputs.go-binary-name }}
