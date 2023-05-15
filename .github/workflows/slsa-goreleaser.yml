@@ -52,9 +52,13 @@ jobs:
       - name: Install verifier
         uses: slsa-framework/slsa-verifier/actions/installer@v2.3.0
 
+      - name: Print folder
+        run: cd ${{ needs.build.outputs.go-binary-name }} && ls -R
+
       - name: Verify
         run: |
-          slsa-verifier verify-artifact ${{ needs.build.outputs.go-binary-name }} \
+          slsa-verifier verify-artifact \ 
+          ${{ needs.build.outputs.go-binary-name }}/${{ needs.build.outputs.go-binary-name }} \
           --provenance-path ${{ needs.build.outputs.go-provenance-name }} \
           --source-uri github.com/${{ github.repository }} \
 
