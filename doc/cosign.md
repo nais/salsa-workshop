@@ -110,7 +110,7 @@ The OIDC flow must be completed in a web browser. In automated environments (suc
 > 
 > Some metadata (including your email address) will be uploaded to the public transparency log, do not use this feature if you don't want to share this information with the world. 
 
-#### Signing an arbitraty blob:
+#### Signing an arbitrary blob:
 
 ```bash
 ❯ cosign sign-blob --output-signature myfile.sig --output-certificate mycert.crt myfile
