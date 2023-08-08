@@ -172,7 +172,7 @@ jobs:
       - name: Install cosign
         uses: sigstore/cosign-installer@4079ad3567a89f68395480299c77e40170430341
         with:
-          cosign-release: 'v2.0.0'
+          cosign-release: 'v2.1.1'
       - name: Sign the container image
         run: cosign sign --yes ${{ IMG }}@${{ steps.build-push.outputs.digest }}
       - name: Attest image
