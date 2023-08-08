@@ -2,14 +2,14 @@
 
 ## Goal
 
-In this lab we will sign and verify containers using [sigstore/cosign](https://docs.sigstore.dev/cosign/) locally. The goal is to get familiar with the tooling and the process of signing and verifying containers.
+In this lab we will sign and verify containers using [sigstore/cosign](https://docs.sigstore.dev/cosign/overview/) locally. The goal is to get familiar with the tooling and the process of signing and verifying containers.
 
 We will push the images to [ttl.sh](https://ttl.sh/), an ephemeral registry that is great for testing.
 The image tag determines how long the image will live, i.e. "2h" = 2 hours. 
 
 ### Cosign
 
-Cosign is a tool for signing and verifying container images. It is developed by the sigstore project and is currently in alpha.
+Cosign is a tool for signing and verifying container images. It is developed by the [sigstore](https://www.sigstore.dev/) project.
 
 When you sign an image cosign will upload the signature to the OCI registry alongside the image.
 
