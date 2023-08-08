@@ -176,10 +176,11 @@ jobs:
       - name: Sign the container image
         run: cosign sign --yes ${{ IMG }}@${{ steps.build-push.outputs.digest }}
       - name: Attest image
-        run: cosign attest --yes \
-        --predicate cyclone.sbom.json \
-        --type  cyclonedx \
-        ${{ IMG }}@${{ steps.buildpush.outputs.digest }}
+        run: | 
+          cosign attest --yes \
+          --predicate cyclone.sbom.json \
+          --type  cyclonedx \
+          ${{ IMG }}@${{ steps.buildpush.outputs.digest }}
 ```
 
 #### Verifying an image:
