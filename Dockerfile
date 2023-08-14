@@ -7,6 +7,6 @@ COPY . /app
 WORKDIR /app
 RUN make slsa-workshop
 
-FROM cgr.dev/chainguard/static:latest
+FROM gcr.io/distroless/static-debian11:nonroot
 COPY --from=builder /app/bin/slsa-workshop /slsa-workshop
 ENTRYPOINT [ "/slsa-workshop" ]
