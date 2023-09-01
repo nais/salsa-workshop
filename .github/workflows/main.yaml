@@ -1,10 +1,12 @@
 name: Build and push to GitHub OCI registry
+
 on:
   push:
     branches:
       - main
       - solution
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-20.04
@@ -14,14 +16,14 @@ jobs:
       id-token: write
     steps:
       - name: Checkout latest code
-        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # ratchet:actions/checkout@v3
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # ratchet:actions/checkout@v3
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@e81a89b1732b9c48d79cd809d8d81d79c4647a18 # ratchet:docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@2b82ce82d56a2a04d2637cd93a637ae1b359c0a7 # ratchet:docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@4b4e9c3e2d4531116a6f8ba8e71fc6e2cb6e6c8c # ratchet:docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@885d1462b80bc1c1c7f0b00334ad271f09369c55 # ratchet:docker/setup-buildx-action@v2
       - name: Login to container registry
-        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # ratchet:docker/login-action@v2
+        uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc # ratchet:docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -31,7 +33,7 @@ jobs:
         run: echo "img_tag=ghcr.io/${{ github.repository }}:$(git rev-parse --short HEAD)" >> ${GITHUB_OUTPUT}
       - name: Build and push
         id: build-push
-        uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671 # ratchet:docker/build-push-action@v4
+        uses: docker/build-push-action@2eb1c1961a95fc15694676618e422e8ba1d63825 # ratchet:docker/build-push-action@v4
         with:
           context: .
           file: Dockerfile
@@ -42,13 +44,13 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Install cosign
-        uses: sigstore/cosign-installer@204a51a57a74d190b284a0ce69b44bc37201f343 # ratchet:sigstore/cosign-installer@main
+        uses: sigstore/cosign-installer@4a861528be5e691840a69536975ada1d4c30349d # ratchet:sigstore/cosign-installer@main
         with:
-          cosign-release: 'v2.0.0'
+          cosign-release: 'v2.2.0'
       - name: Sign the container image
         run: cosign sign --yes ghcr.io/${{ github.repository }}@${{ steps.build-push.outputs.digest }}
       - name: Create SBOM
-        uses: aquasecurity/trivy-action@e5f43133f6e8736992c9f3c1b3296e24b37e17f2 # ratchet:aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@559eb1224e654a86c844a795e6702a0742c60c72 # ratchet:aquasecurity/trivy-action@master
         with:
           scan-type: 'image'
           format: 'cyclonedx'
@@ -56,4 +58,3 @@ jobs:
           image-ref: ghcr.io/${{ github.repository }}@${{ steps.build-push.outputs.digest }}
       - name: Attest image
         run: cosign attest --yes --predicate cyclone.sbom.json --type cyclonedx ghcr.io/${{ github.repository }}@${{ steps.build-push.outputs.digest }}
-
