@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-20.04
     permissions:
       contents: read
-      packages: write
-      id-token: write
+    env:
+      IMG_BASENAME=ttl.sh/${{ github.repository }}
     steps:
       - name: Checkout latest code
         uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # ratchet:actions/checkout@v3
@@ -22,15 +22,9 @@ jobs:
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@885d1462b80bc1c1c7f0b00334ad271f09369c55 # ratchet:docker/setup-buildx-action@v2
-      - name: Login to container registry
-        uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc # ratchet:docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Generate Docker image tag with short sha
         id: dockertag
-        run: echo "img_tag=ghcr.io/${{ github.repository }}:$(git rev-parse --short HEAD)" >> ${GITHUB_OUTPUT}
+        run: echo "${{ env.IMG_BASENAME }}:$(git rev-parse --short HEAD)" >> ${GITHUB_OUTPUT}
       - name: Build and push
         id: build-push
         uses: docker/build-push-action@2eb1c1961a95fc15694676618e422e8ba1d63825 # ratchet:docker/build-push-action@v4
@@ -48,13 +42,13 @@ jobs:
         with:
           cosign-release: 'v2.2.0'
       - name: Sign the container image
-        run: cosign sign --yes ghcr.io/${{ github.repository }}@${{ steps.build-push.outputs.digest }}
+        run: cosign sign --yes $IMG_BASENAME:@${{ steps.build-push.outputs.digest }}
       - name: Create SBOM
         uses: aquasecurity/trivy-action@559eb1224e654a86c844a795e6702a0742c60c72 # ratchet:aquasecurity/trivy-action@master
         with:
           scan-type: 'image'
           format: 'cyclonedx'
           output: 'cyclone.sbom.json'
-          image-ref: ghcr.io/${{ github.repository }}@${{ steps.build-push.outputs.digest }}
+          image-ref: ${{ env.IMG_BASENAME }}@{{ steps.build-push.outputs.digest }}
       - name: Attest image
-        run: cosign attest --yes --predicate cyclone.sbom.json --type cyclonedx ghcr.io/${{ github.repository }}@${{ steps.build-push.outputs.digest }}
+        run: cosign attest --yes --predicate cyclone.sbom.json --type cyclonedx ${{ env.IMG_BASENAME }}@${{ steps.build-push.outputs.digest }}
