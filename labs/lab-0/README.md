@@ -77,6 +77,9 @@ Clone the repository to your local machine:
 git clone git@github.com:<user>/nais-workshop.git
 ```
 
+> [!NOTE]
+> Throughout these labs we will push our images to the anonymous and ephemeral Docker registry [ttl.sh](https://ttl.sh/). This registry offers a lifetime of at most 24 hours. If you want the images to remain available you must perform step 8 to set up access to [GitHub Packages](https://github.com/features/packages). You will also need to replace all occurrences of `ttl.sh/myimage` with `ghcr.io/<mygithubuser>/myimage`. If you will be using `ttl.sh` step 8 can be skipped. 
+
 ### 8. Create a GitHub personal access token
 
 Create a [new GitHub personal access

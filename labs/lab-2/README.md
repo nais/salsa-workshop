@@ -10,7 +10,7 @@ If you get stuck, ask for help or take a peek at the Git branch named "solution"
 
 ### Sigstore
 
-Sigstore is an open source project that aims to make software supply chain security accessible to all open source projects. It is a collection of tools and services that enable the signing and verification of software artifacts. The project is currently in alpha and is being developed by the Linux Foundation Public Health (LFPH) and the Open Source Security Foundation (OpenSSF).
+Sigstore is an open source project that aims to make software supply chain security accessible to all open source projects. It is a collection of tools and services that enable the signing and verification of software artifacts. The project is being developed by the Linux Foundation Public Health (LFPH) and the Open Source Security Foundation (OpenSSF).
 
 ## Steps
 
@@ -18,46 +18,59 @@ In this repository we have created an example GitHub Action workflow that builds
 
 What we need to do is to add a step to the workflow that signs the container after it has been built and pushed to the registry.
 
-First we need to update the permissions of the id token that is used to authenticate with the registry. We do this by adding the `packages: write` in order to push the image and `id-token: write` in order to sign the image.
+If you will be using the "GitHub Packages" registry you will also need an extra step to log in to it as well as granting write permissions to this workflow.
 
 ```yaml
     permissions:
-      contents: read
-      packages: write
+      …
       id-token: write
+      packages: write
+      …
+```
+
+```yaml
+     - name: Login to the container registry
+       uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc # ratchet:docker/login-action@v2
+       with:
+         registry: ghcr.io
+         username: ${{ github.actor }}
+         password: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 In the `Build and push` step we need to enable pushing the image to the registry by setting the `push` flag to true:
 
 ```yaml
-      - name: Build and push
-        uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671 # ratchet:docker/build-push-action@v4
-        with:
-          …
-          push: true
-          …
+    - name: Build and push
+      uses: docker/build-push-action@2eb1c1961a95fc15694676618e422e8ba1d63825 # ratchet:docker/build-push-action@v4
+      with:
+        …
+        push: true
+        …
 ```
 
 Next we need to install cosign so that we have the cosign binary in our workflow:
 
 ```yaml
       - name: Install cosign
-        uses: sigstore/cosign-installer@204a51a57a74d190b284a0ce69b44bc37201f343 # ratchet:sigstore/cosign-installer@main
+        uses: sigstore/cosign-installer@4a861528be5e691840a69536975ada1d4c30349d # ratchet:sigstore/cosign-installer@main
         with:
-          cosign-release: 'v2.0.0'
+          cosign-release: 'v2.2.0'
 ```
 
 Once we have cosign we can sign the container using the following command:
 
 ```yaml
       - name: Sign the container image
-        run: cosign sign --yes ghcr.io/${{ github.repository }}@${{ steps.build-push.outputs.digest }}
+        run: cosign sign --yes ttl.sh/${{ github.repository }}@${{ steps.build-push.outputs.digest }}
 ```
 
 We also create a SBOM to document the contents of our app:
 
 > SBOM stands for Software Bill of Materials and is a list of components that are used to build a software artifact. SBOMs are used to track the components that are used in a software artifact and to identify vulnerabilities in those components.
-> In this example we will be using the aquasecurity/trivy-action to generate the SBOM. The action is currently in alpha and is being developed by Aqua Security.
+> In this example we will be using the aquasecurity/trivy-action to generate the SBOM. The action is developed by Aqua Security.
+
+> **Note**
+> In order to create an accurate SBOM for a JVM app you will need to use a tool that understands Maven or Gradle dependency resolution. The [CycloneDX project](https://github.com/CycloneDX) has developed a number of plugins for a variety of languages and build tools.
 
 ```yaml
       - name: Create SBOM
@@ -66,14 +79,14 @@ We also create a SBOM to document the contents of our app:
           scan-type: 'image'
           format: 'cyclonedx'
           output: 'cyclone.sbom.json'
-          image-ref: ghcr.io/${{ github.repository }}@${{ steps.build-push.outputs.digest }}
+          image-ref: ttl.sh/${{ github.repository }}@${{ steps.build-push.outputs.digest }}
 ```
 
 Finally we sign the SBOM and attach it to our image:
 
 ```yaml
       - name: Attest image
-        run: cosign attest --yes --predicate cyclone.sbom.json --type cyclonedx ghcr.io/${{ github.repository }}@${{ steps.build-push.outputs.digest }}
+        run: cosign attest --yes --predicate cyclone.sbom.json --type cyclonedx ttl.sh/${{ github.repository }}@${{ steps.build-push.outputs.digest }}
 ```
 
 Commit and push the changes to the repository and the workflow will start running.
@@ -84,7 +97,8 @@ The signature can be verified by running the following command:
 cosign verify-attestation \
   --type cyclonedx \
   --certificate-identity "https://github.com/<user>/salsa-workshop/.github/workflows/main.yaml@refs/heads/main" \
-  --certificate-oidc-issuer "https://token.actions.githubusercontent.com" ghcr.io/<user>/salsa-workshop@sha256:<digest>
+  --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+  ttl.sh/<gh-user>/salsa-workshop@sha256:<digest>
 ```
 
 ## Conclusion

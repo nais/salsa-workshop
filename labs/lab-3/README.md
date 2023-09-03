@@ -65,7 +65,7 @@ spec:
                 - Pod
       verifyImages:
         - imageReferences:
-            - "ghcr.io/<user>/salsa-workshop*"
+            - "ttl.sh/<gh-user>/salsa-workshop*"
             - "ghcr.io/nais/salsa-workshop*"
           attestors:
             - entries:
