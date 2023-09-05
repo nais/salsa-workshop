@@ -18,25 +18,6 @@ In this repository we have created an example GitHub Action workflow that builds
 
 What we need to do is to add a step to the workflow that signs the container after it has been built and pushed to the registry.
 
-If you will be using the "GitHub Packages" registry you will also need an extra step to log in to it as well as granting write permissions to this workflow.
-
-```yaml
-    permissions:
-      …
-      id-token: write
-      packages: write
-      …
-```
-
-```yaml
-     - name: Login to the container registry
-       uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc # ratchet:docker/login-action@v2
-       with:
-         registry: ghcr.io
-         username: ${{ github.actor }}
-         password: ${{ secrets.GITHUB_TOKEN }}
-```
-
 In the `Build and push` step we need to enable pushing the image to the registry by setting the `push` flag to true:
 
 ```yaml
