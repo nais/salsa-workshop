@@ -21,7 +21,9 @@ Policy Reporter helps with this problems by providing different features based o
 Install Kyverno Policy Reporter:
 
 ```bash
-helm install kyverno-policy-reporter kyverno/policy-reporter --namespace kyverno --create-namespace
+helm repo add policy-reporter https://kyverno.github.io/policy-reporter
+helm repo update
+helm install policy-reporter policy-reporter/policy-reporter -n policy-reporter --create-namespace
 ```
 
 Check that the Policy Reporter is running:
