@@ -23,7 +23,7 @@ Install Kyverno Policy Reporter:
 ```bash
 helm repo add policy-reporter https://kyverno.github.io/policy-reporter
 helm repo update
-helm install policy-reporter policy-reporter/policy-reporter -n policy-reporter --create-namespace
+helm install policy-reporter policy-reporter/policy-reporter --set kyvernoPlugin.enabled=true --set ui.enabled=true --set ui.plugins.kyverno=true -n policy-reporter --create-namespace
 ```
 
 Check that the Policy Reporter is running:
