@@ -29,13 +29,13 @@ helm install policy-reporter policy-reporter/policy-reporter -n policy-reporter 
 Check that the Policy Reporter is running:
 
 ```bash
-kubectl get pods -n kyverno
+kubectl get pods -n policy-reporter
 ```
 
 Check the Policy Reporter dashboard:
 
 ```bash
-kubectl port-forward -n kyverno svc/kyverno-policy-reporter 8080:80
+kubectl port-forward -n policy-reporter svc/policy-reporter 8080:8080
 ```
 
 Open http://localhost:8080 in your browser.
@@ -43,7 +43,7 @@ Open http://localhost:8080 in your browser.
 Check the Policy Reporter metrics:
 
 ```bash
-kubectl port-forward -n kyverno svc/kyverno-policy-reporter 8081:8081
+kubectl port-forward -n policy-reporter svc/policy-reporter 8081:8081
 ```
 
 Open http://localhost:8081/metrics in your browser.
@@ -51,7 +51,7 @@ Open http://localhost:8081/metrics in your browser.
 Check the Policy Reporter plugin:
 
 ```bash
-kubectl port-forward -n kyverno svc/kyverno-policy-reporter 8082:8082
+kubectl port-forward -n policy-reporter svc/policy-reporter 8082:8082
 ```
 
 Open http://localhost:8082 in your browser.
